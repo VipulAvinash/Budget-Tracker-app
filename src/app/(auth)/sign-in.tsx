@@ -46,7 +46,7 @@ const SignInScreen = () => {
                         {/* Google Button */}
                         <Pressable
                             disabled={isLoading}
-                            onPress={() => handleSocialAuth(OAUTH.GOOGLE_OAUTH as any)}
+                            onPress={() => handleSocialAuth(OAUTH.GOOGLE_OAUTH)}
                             className={`w-full flex-row items-center justify-center py-3.5 px-4 rounded-2xl border border-titan-white/80 dark:border-shark3 bg-magnolia dark:bg-shark3 shadow-sm active:opacity-80 ${isLoading ? "opacity-60" : ""}`}
                         >
                             {isGoogleClicked ? (
@@ -66,7 +66,7 @@ const SignInScreen = () => {
                         {/* GitHub Button */}
                         <Pressable
                             disabled={isLoading}
-                            onPress={() => handleSocialAuth(OAUTH.GITHUB_OAUTH as any)}
+                            onPress={() => handleSocialAuth(OAUTH.GITHUB_OAUTH)}
                             className={`w-full flex-row items-center justify-center py-3.5 px-4 rounded-2xl bg-ebony dark:bg-shark3 border border-ebony dark:border-shark3 shadow-sm active:opacity-80 ${isLoading ? "opacity-60" : ""}`}
                         >
                             {isGithubClicked ? (
@@ -86,7 +86,7 @@ const SignInScreen = () => {
                         {/* Apple Button */}
                         <Pressable
                             disabled={isLoading}
-                            onPress={() => handleSocialAuth(OAUTH.APPLE_OAUTH as any)}
+                            onPress={() => handleSocialAuth(OAUTH.APPLE_OAUTH)}
                             className={`w-full flex-row items-center justify-center py-3.5 px-4 rounded-2xl bg-black dark:bg-athens-gray border border-black dark:border-athens-gray shadow-sm active:opacity-80 ${isLoading ? "opacity-60" : ""}`}
                         >
                             {isAppleClicked ? (

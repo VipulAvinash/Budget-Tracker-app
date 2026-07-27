@@ -3,7 +3,7 @@ import { Text, View } from 'react-native'
 
 const HomeScreen = () => {
   return (
-    <SafeAreaView className="bg-magnolia dark:bg-cinder flex-1 px-6 pt-6">
+    <SafeAreaView className="bg-magnolia dark:bg-cinder flex-1 px-6 pt-6" edges={["top"]} >
       <View className="flex-1">
         <View className="mb-6">
           <Text className="text-ebony dark:text-athens-gray text-3xl font-extrabold tracking-tight">

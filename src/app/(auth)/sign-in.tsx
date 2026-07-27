@@ -13,7 +13,7 @@ const SignInScreen = () => {
     const isLoading = loadingStrategy !== null
 
     return (
-        <SafeAreaView className="bg-magnolia dark:bg-cinder flex-1 w-full overflow-hidden">
+        <SafeAreaView className="bg-magnolia dark:bg-cinder flex-1 w-full overflow-hidden" edges={["top"]} >
             <ScrollView 
                 contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between" }}
                 showsVerticalScrollIndicator={false}

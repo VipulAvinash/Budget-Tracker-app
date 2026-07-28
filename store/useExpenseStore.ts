@@ -8,9 +8,9 @@ export const useExpenseStore = create<ExpenseStore>( (set,get) => ({
     fetchExpenses : async()=>{
         try{
             const response = await fetch("/api/expense")
-            const data = await response.json();
-            const parsedData = keysToCamelCase(data.expenses)
-            set({userExpenses : parsedData})
+            const data = await response.json()
+            const parsedData = keysToCamelCase(data?.expenses || [])
+            set({ userExpenses: parsedData })
         }
         catch(error){
             console.log("Failed to Fetch Expense Items" , error)

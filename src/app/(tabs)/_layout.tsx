@@ -1,7 +1,8 @@
+import { useExpenseStore } from '@/store/useExpenseStore'
 import { useAuth } from '@clerk/expo'
 import { Ionicons } from '@expo/vector-icons'
 import { Redirect, Tabs } from 'expo-router'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 type IconName = React.ComponentProps<typeof Ionicons>['name']
 
@@ -26,6 +27,12 @@ const TAB_SCREEN_OPTIONS: React.ComponentProps<typeof Tabs>['screenOptions'] = {
 
 const TabLayout = () => {
   const { isLoaded, isSignedIn } = useAuth()
+  const {fetchExpenses } = useExpenseStore()
+
+  
+  useEffect(() => {
+    fetchExpenses()
+  }, [fetchExpenses])
 
   if (!isLoaded) return null
   if (!isSignedIn) return <Redirect href={'/(auth)/sign-in'} />

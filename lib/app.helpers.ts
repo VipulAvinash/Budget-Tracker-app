@@ -1,4 +1,4 @@
-import { GenericStringMap, IToCamelCase, IKeysToCamelCase } from "@/store/useExpenseStore.types";
+import { ExpenseCategory, ExpenseItem, GenericStringMap, IToCamelCase, IKeysToCamelCase } from "@/store/useExpenseStore.types";
 
 /**
  * Converts a snake_case or kebab-case string to camelCase.
@@ -12,11 +12,6 @@ export const toCamelCase: IToCamelCase = (str: string): string => {
 
 /**
  * Recursively converts all object keys (and nested array elements) from snake_case to camelCase.
- * Handles objects, arrays, and primitive values safely.
- *
- * Example:
- *   keysToCamelCase({ expense_date: "2026-07-28" })
- *   // Returns: { expenseDate: "2026-07-28" }
  */
 export const keysToCamelCase: IKeysToCamelCase = <T = any>(obj: any): T => {
     if (Array.isArray(obj)) {
@@ -31,4 +26,127 @@ export const keysToCamelCase: IKeysToCamelCase = <T = any>(obj: any): T => {
     return obj as T;
 };
 
+/**
+ * Formats a number as Indian Rupee currency (e.g. 125000 -> "₹1,25,000.00")
+ */
+export function formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 2,
+    }).format(amount || 0);
+}
 
+/**
+ * Formats a date string to Indian date format (e.g. "28 Jul 2026")
+ */
+export function formatIndianDate(dateString: string | Date): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return String(dateString);
+    return date.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
+}
+
+/**
+ * Formats a date string to Indian date & time format (e.g. "28 Jul 2026, 06:25 PM")
+ */
+export function formatIndianDateTime(dateString: string | Date): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return String(dateString);
+    return date.toLocaleString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
+/**
+ * Calculates total expenses for a specific year (defaults to current year)
+ */
+export function getYearlyTotal(expenses: ExpenseItem[], year = new Date().getFullYear()): number {
+    if (!Array.isArray(expenses)) return 0;
+    return expenses.reduce((sum, item) => {
+        const itemYear = new Date(item.expenseDate).getFullYear();
+        return itemYear === year ? sum + (Number(item.amount) || 0) : sum;
+    }, 0);
+}
+
+/**
+ * Calculates total expenses for current month and year
+ */
+export function getCurrentMonthTotal(
+    expenses: ExpenseItem[],
+    year = new Date().getFullYear(),
+    month = new Date().getMonth()
+): number {
+    if (!Array.isArray(expenses)) return 0;
+    return expenses.reduce((sum, item) => {
+        const d = new Date(item.expenseDate);
+        return d.getFullYear() === year && d.getMonth() === month ? sum + (Number(item.amount) || 0) : sum;
+    }, 0);
+}
+
+/**
+ * Returns icon and color details for each expense category
+ */
+export function getCategoryMeta(category: ExpenseCategory | string) {
+    switch (category) {
+        case "Food":
+            return { icon: "fast-food", color: "#FF6B6B", bg: "rgba(255,107,107,0.15)" };
+        case "Transport":
+            return { icon: "car", color: "#4D96FF", bg: "rgba(77,150,255,0.15)" };
+        case "Groceries":
+            return { icon: "cart", color: "#6BCB77", bg: "rgba(107,203,119,0.15)" };
+        case "Entertainment":
+            return { icon: "film", color: "#FFD93D", bg: "rgba(255,217,61,0.15)" };
+        case "Bills":
+            return { icon: "receipt", color: "#9B51E0", bg: "rgba(155,81,224,0.15)" };
+        default:
+            return { icon: "wallet", color: "#584de8", bg: "rgba(88,77,232,0.15)" };
+    }
+}
+
+/**
+ * Calculates category breakdown percentages and totals for charts/graphs
+ */
+export function getCategoryBreakdown(expenses: ExpenseItem[]) {
+    if (!Array.isArray(expenses) || expenses.length === 0) return [];
+
+    const totals: Record<string, number> = {};
+    let overallTotal = 0;
+
+    expenses.forEach((item) => {
+        const amt = Number(item.amount) || 0;
+        totals[item.category] = (totals[item.category] || 0) + amt;
+        overallTotal += amt;
+    });
+
+    return Object.entries(totals).map(([category, amount]) => {
+        const meta = getCategoryMeta(category);
+        const percentage = overallTotal > 0 ? Math.round((amount / overallTotal) * 100) : 0;
+        return {
+            category,
+            amount,
+            percentage,
+            ...meta,
+        };
+    }).sort((a, b) => b.amount - a.amount);
+}
+
+/**
+ * Gets recent N expenses sorted by date
+ */
+export function getRecentExpenses(expenses: ExpenseItem[], limit = 5): ExpenseItem[] {
+    if (!Array.isArray(expenses)) return [];
+    return [...expenses]
+        .sort((a, b) => new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime())
+        .slice(0, limit);
+}

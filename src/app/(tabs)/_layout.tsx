@@ -9,12 +9,13 @@ type IconName = React.ComponentProps<typeof Ionicons>['name']
 const TAB_SCREENS: { name: string; title: string; icon: IconName; iconSize?: number }[] = [
   { name: 'index', title: 'Stats', icon: 'stats-chart' },
   { name: 'add', title: 'Add', icon: 'add-circle', iconSize: 24 },
-  { name: 'expense', title: 'Expense', icon: 'card' },
+  { name: 'expense', title: 'Transactions', icon: 'card' },
   { name: 'profile', title: 'Profile', icon: 'person' },
 ]
 
 const TAB_SCREEN_OPTIONS: React.ComponentProps<typeof Tabs>['screenOptions'] = {
   headerShown: false,
+  tabBarHideOnKeyboard: true,
   tabBarActiveTintColor: '#584de8',
   tabBarInactiveTintColor: '#9a96aa',
   tabBarStyle: {

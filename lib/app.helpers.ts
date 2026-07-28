@@ -38,34 +38,53 @@ export function formatCurrency(amount: number): string {
 }
 
 /**
- * Formats a date string to Indian date format (e.g. "28 Jul 2026")
+ * Safely parses any date string (including DD-MM-YYYY, YYYY-MM-DD, or ISO strings) into a JavaScript Date object.
  */
-export function formatIndianDate(dateString: string | Date): string {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return String(dateString);
-    return date.toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-    });
+export function parseIndianDate(dateInput: string | Date): Date {
+    if (!dateInput) return new Date();
+    if (dateInput instanceof Date) return dateInput;
+
+    if (typeof dateInput === 'string' && /^\d{2}-\d{2}-\d{4}$/.test(dateInput)) {
+        const [day, month, year] = dateInput.split('-').map(Number);
+        return new Date(year, month - 1, day);
+    }
+    return new Date(dateInput);
 }
 
 /**
- * Formats a date string to Indian date & time format (e.g. "28 Jul 2026, 06:25 PM")
+ * Formats a date string to Indian DD-MM-YYYY format (e.g. "28-07-2026")
  */
-export function formatIndianDateTime(dateString: string | Date): string {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return String(dateString);
-    return date.toLocaleString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-    });
+export function formatIndianDate(dateInput: string | Date): string {
+    if (!dateInput) return '';
+
+    if (typeof dateInput === 'string' && /^\d{2}-\d{2}-\d{4}$/.test(dateInput)) {
+        return dateInput;
+    }
+
+    const d = parseIndianDate(dateInput);
+    if (isNaN(d.getTime())) return String(dateInput);
+
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+
+    return `${day}-${month}-${year}`;
+}
+
+/**
+ * Returns today's date in Indian DD-MM-YYYY format (e.g. "28-07-2026")
+ */
+export function getTodayIndianDate(): string {
+    return formatIndianDate(new Date());
+}
+
+/**
+ * Returns yesterday's date in Indian DD-MM-YYYY format (e.g. "27-07-2026")
+ */
+export function getYesterdayIndianDate(): string {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return formatIndianDate(d);
 }
 
 /**
@@ -74,7 +93,7 @@ export function formatIndianDateTime(dateString: string | Date): string {
 export function getYearlyTotal(expenses: ExpenseItem[], year = new Date().getFullYear()): number {
     if (!Array.isArray(expenses)) return 0;
     return expenses.reduce((sum, item) => {
-        const itemYear = new Date(item.expenseDate).getFullYear();
+        const itemYear = parseIndianDate(item.expenseDate).getFullYear();
         return itemYear === year ? sum + (Number(item.amount) || 0) : sum;
     }, 0);
 }
@@ -89,7 +108,7 @@ export function getCurrentMonthTotal(
 ): number {
     if (!Array.isArray(expenses)) return 0;
     return expenses.reduce((sum, item) => {
-        const d = new Date(item.expenseDate);
+        const d = parseIndianDate(item.expenseDate);
         return d.getFullYear() === year && d.getMonth() === month ? sum + (Number(item.amount) || 0) : sum;
     }, 0);
 }
@@ -147,6 +166,6 @@ export function getCategoryBreakdown(expenses: ExpenseItem[]) {
 export function getRecentExpenses(expenses: ExpenseItem[], limit = 5): ExpenseItem[] {
     if (!Array.isArray(expenses)) return [];
     return [...expenses]
-        .sort((a, b) => new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime())
+        .sort((a, b) => parseIndianDate(b.expenseDate).getTime() - parseIndianDate(a.expenseDate).getTime())
         .slice(0, limit);
 }
